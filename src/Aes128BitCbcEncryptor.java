@@ -2,47 +2,56 @@ import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.*;
 import java.security.*;
+import java.util.Base64;
 
-public class aes_cbc_encryption {
-    public static void main(String[] args) {
+public class Aes128BitCbcEncryptor {
+    public void perform() {
         try {
-            generate_symmetric_keys symKeys = new generate_symmetric_keys();
-            SecretKey k1 = symKeys.getK1();
-
             // Load the original image file
-            File originalFile = new File("image_to_encrypt.jpg");
+            File originalFile = new File("resources/image_to_encrypt.jpg");
             FileInputStream originalInputStream = new FileInputStream(originalFile);
             byte[] originalData = new byte[(int) originalFile.length()];
             originalInputStream.read(originalData);
             originalInputStream.close();
 
             byte[] iv = generateIV();
-            System.out.println("First IV: " + iv);
+            System.out.println("\nFirst IV: " + Base64.getEncoder().encodeToString(iv));
             Long startTime = System.nanoTime();
-            byte[] encrypted128 = encryptAES_CBC(originalData, k1,iv,"AES/CBC/PKCS5Padding" );
-            saveToFile("encrypted_cbc128.jpg", encrypted128);
+            byte[] encrypted128 = encryptAES_CBC(originalData, Keys.symmetricKey1, iv,"AES/CBC/PKCS5Padding" );
             long endTime = System.nanoTime();
+
             long encryptionTimeNano = endTime - startTime;
+
+            saveToFile("encrypted_cbc128.jpg", encrypted128);
 
             double encryptionTimeMillis = encryptionTimeNano / 1_000_000.0;
             System.out.println("Encryption Time (milliseconds): " + encryptionTimeMillis);
 
+            startTime = System.nanoTime();
+            byte[] decrypted128 = decryptAES_CBC(encrypted128, Keys.symmetricKey1,iv,"AES/CBC/PKCS5Padding");
+            endTime = System.nanoTime();
 
-            byte[] decrypted128 = decryptAES_CBC(encrypted128, k1,iv,"AES/CBC/PKCS5Padding");
+            long decryptionTimeNano = endTime - startTime;
+
+            double decryptionTimeMillis = decryptionTimeNano / 1_000_000.0;
+            System.out.println("Decryption Time (milliseconds): " + decryptionTimeMillis);
+
             saveToFile("decrypted_cbc128.jpg", decrypted128);
 
             iv = generateIV();
-            System.out.println("Second IV: " + iv);
-            byte[] encrypted128_2 = encryptAES_CBC(originalData, k1, iv,"AES/CBC/PKCS5Padding");
-            byte[] decrypted128_2 = decryptAES_CBC(encrypted128_2, k1, iv, "AES/CBC/PKCS5Padding");
+            System.out.println("Second IV: " + Base64.getEncoder().encodeToString(iv));
+            byte[] encrypted128_2 = encryptAES_CBC(originalData, Keys.symmetricKey1, iv,"AES/CBC/PKCS5Padding");
+            byte[] decrypted128_2 = decryptAES_CBC(encrypted128_2, Keys.symmetricKey1, iv, "AES/CBC/PKCS5Padding");
 
             // Verify that the decrypted data matches the original files
             boolean match128 = compareByteArrays(originalData, decrypted128);
             boolean changed = !compareByteArrays(encrypted128, encrypted128_2);
 
             System.out.println("Decrypted data matches original data (128-bit): " + match128);
-            System.out.println("Ciphertext 1: " + encrypted128);
-            System.out.println("Ciphertext 2: " + encrypted128_2 );
+
+            saveToFile("encrypted_cbc128_vi1.jpg", Base64.getEncoder().encodeToString(encrypted128));
+            saveToFile("encrypted_cbc128_vi2.jpg", Base64.getEncoder().encodeToString(encrypted128_2));
+
             System.out.println("Does the ciphertext change when the IV changed? : " + changed);
 
         } catch (Exception e) {
@@ -51,7 +60,7 @@ public class aes_cbc_encryption {
     }
 
     // Encrypt data using AES in CBC mode
-    private static byte[] encryptAES_CBC(byte[] data, SecretKey key, byte[] iv, String transformation) throws NoSuchAlgorithmException,
+    private byte[] encryptAES_CBC(byte[] data, SecretKey key, byte[] iv, String transformation) throws NoSuchAlgorithmException,
             NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
             InvalidAlgorithmParameterException {
         Cipher cipher = Cipher.getInstance(transformation);
@@ -63,7 +72,7 @@ public class aes_cbc_encryption {
     }
 
     // Decrypt data using AES in CBC mode
-    private static byte[] decryptAES_CBC(byte[] data, SecretKey key, byte[] iv, String transformation) throws NoSuchAlgorithmException,
+    private byte[] decryptAES_CBC(byte[] data, SecretKey key, byte[] iv, String transformation) throws NoSuchAlgorithmException,
             NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
             InvalidAlgorithmParameterException {
         Cipher cipher = Cipher.getInstance(transformation);
@@ -76,14 +85,20 @@ public class aes_cbc_encryption {
 
 
     // Save data to a file
-    private static void saveToFile(String fileName, byte[] data) throws IOException {
-        FileOutputStream outputStream = new FileOutputStream(fileName);
+    private void saveToFile(String fileName, byte[] data) throws IOException {
+        FileOutputStream outputStream = new FileOutputStream("outputs/"+fileName);
         outputStream.write(data);
         outputStream.close();
     }
 
+    private void saveToFile(String fileName, String data) throws IOException {
+        FileWriter writer = new FileWriter("outputs/"+fileName);
+        writer.write(data);
+        writer.close();
+    }
+
     // Compare byte arrays to check for equality
-    private static boolean compareByteArrays(byte[] arr1, byte[] arr2) {
+    private boolean compareByteArrays(byte[] arr1, byte[] arr2) {
         if (arr1.length != arr2.length) {
             return false;
         }
@@ -94,7 +109,7 @@ public class aes_cbc_encryption {
         }
         return true;
     }
-    private static byte[] generateIV() {
+    private byte[] generateIV() {
         byte[] iv = new byte[16]; // For AES, IV size is typically 16 bytes (128 bits)
         new SecureRandom().nextBytes(iv);
         return iv;
