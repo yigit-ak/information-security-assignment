@@ -1,3 +1,4 @@
+import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
@@ -13,7 +14,16 @@ public class Main {
         PublicKey publicKeyC;
         PrivateKey privateKeyC;
 
-        // TODO generate key pairs
+        // symmetric keys to be created using derivation function
+        Key symmetricKey1;
+        Key symmetricKey2;
+
+        // symmetric key to be created using ecliptic key
+        Key symmetricKey3;
+
+        // TODO generate public-private key pairs
+
+        // TODO generate symmetric keys
 
         // TODO generate digital signature for the image
 
