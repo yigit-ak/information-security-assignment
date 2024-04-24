@@ -43,13 +43,13 @@ public class ImageHashGenerator {
     public void generateDigitalSignature() {
         try {
             Cipher cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, Main.privateKeyA);
+            cipher.init(Cipher.ENCRYPT_MODE, Keys.privateKeyA);
             byte[] signedHash = cipher.doFinal(this.hash);
 
             System.out.println("\nDigital signature of hash (encrypted with KA-): "
                     + Base64.getEncoder().encodeToString(signedHash));
 
-            cipher.init(Cipher.DECRYPT_MODE, Main.publicKeyA);
+            cipher.init(Cipher.DECRYPT_MODE, Keys.publicKeyA);
             byte[] decryptedHash = cipher.doFinal(signedHash);
 
             System.out.println("\nDecryption of digital signature with KA+: "

@@ -1,3 +1,4 @@
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -14,9 +15,9 @@ public class Keys {
     static PrivateKey privateKeyC;
 
     // symmetric keys to be created using derivation function
-    static Key symmetricKey1;
-    static Key symmetricKey2;
+    static SecretKey symmetricKey1;
+    static SecretKey symmetricKey2;
 
     // symmetric key to be created using ecliptic key
-    static Key symmetricKey3;
+    static SecretKey symmetricKey3;
 }

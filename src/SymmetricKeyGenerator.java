@@ -18,7 +18,7 @@ public class SymmetricKeyGenerator {
             // Task a: Generate K3
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
             keyPairGenerator.initialize(256);
-            this.k3 = generateSharedSecretKey(Main.publicKeyC, Main.privateKeyB);
+            this.k3 = generateSharedSecretKey(Keys.publicKeyC, Keys.privateKeyB);
 
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             e.printStackTrace();
@@ -63,7 +63,7 @@ public class SymmetricKeyGenerator {
             keyPairGenerator.initialize(256);
 
             // Generate symmetric key using KB+ and KC-
-            SecretKey k4 = generateSharedSecretKey(Main.publicKeyB, Main.privateKeyC);
+            SecretKey k4 = generateSharedSecretKey(Keys.publicKeyB, Keys.privateKeyC);
 
             // Verify if K3 and K4 are the same
             boolean keysMatch = k3.equals(k4);
