@@ -3,24 +3,19 @@ import javax.crypto.spec.*;
 import java.io.*;
 import java.security.*;
 
-public class AESCTR256Encryption {
-    public static void main(String[] args) throws NoSuchAlgorithmException {
-        String inputFile = "image_to_encrypt.jpg"; // Path to input image file
-        String encryptedFile = "encrypted_ctr256.jpg"; // Path to store encrypted image file
-        String decryptedFile = "decrypted_ctr256.jpg"; // Path to store decrypted image file
-
-        generate_symmetric_keys symKeys = new generate_symmetric_keys();
-        SecretKey key = symKeys.getK2();
-
+public class Aes256BitCtrEncryptor {
+    public void perform() {
+        String inputFile = "resources/image_to_encrypt.jpg"; // Path to input image file
+        String encryptedFile = "outputs/encrypted_ctr256.jpg"; // Path to store encrypted image file
+        String decryptedFile = "outputs/decrypted_ctr256.jpg"; // Path to store decrypted image file
 
         try {
             // Encrypt the image file
-            encryptCTR(inputFile, encryptedFile, key);
+            encryptCTR(inputFile, encryptedFile, Keys.symmetricKey3);
 
             // Decrypt the encrypted image file
-            decryptCTR(encryptedFile, decryptedFile, key);
+            decryptCTR(encryptedFile, decryptedFile, Keys.symmetricKey3);
 
-            System.out.println("Encryption and decryption completed successfully.");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -51,7 +46,15 @@ public class AESCTR256Encryption {
                 byte[] encryptedBytes = cipher.update(buffer, 0, bytesRead);
                 out.write(encryptedBytes);
             }
+
+            long startTime = System.nanoTime();
             byte[] finalBytes = cipher.doFinal();
+            long endTime = System.nanoTime();
+
+            long encryptionTimeNano = endTime - startTime;
+            double encryptionTimeMillis = encryptionTimeNano / 1_000_000.0;
+            System.out.println("Encryption Time (milliseconds): " + encryptionTimeMillis);
+
             out.write(finalBytes);
         }
     }
@@ -70,6 +73,7 @@ public class AESCTR256Encryption {
             Cipher cipher = Cipher.getInstance("AES/CTR/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, key, iv);
 
+
             // Decrypt the file
             byte[] buffer = new byte[4096];
             int bytesRead;
@@ -77,7 +81,14 @@ public class AESCTR256Encryption {
                 byte[] decryptedBytes = cipher.update(buffer, 0, bytesRead);
                 out.write(decryptedBytes);
             }
+            long startTime = System.nanoTime();
             byte[] finalBytes = cipher.doFinal();
+            long endTime = System.nanoTime();
+
+            long decryptionTimeNano = endTime - startTime;
+            double decryptionTimeMillis = decryptionTimeNano / 1_000_000.0;
+            System.out.println("Decryption Time (milliseconds): " + decryptionTimeMillis);
+
             out.write(finalBytes);
         } catch (IllegalBlockSizeException e) {
             // TODO Auto-generated catch block
